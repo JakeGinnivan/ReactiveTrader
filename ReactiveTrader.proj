@@ -116,14 +116,18 @@
 
   <Target Name="Publish" DependsOnTargets="Package">
     <!--$(BlobTargetUrl) = https://myaccount.blob.core.windows.net/mycontainer/ -->
+    <PropertyGroup>
+      <!--Batch files do not pass the == through on the key, this is a workaround so it works-->
+      <BlobTargetKey Condition="$(BlobTargetKey).EndsWith('==')">$(BlobTargetKey)==</BlobTargetKey>
+    </PropertyGroup>
 
     <!--Upload everything except the application manifest as it should be done last (once everything else is uploaded)-->
     <Move SourceFiles="$(ClientClickOnceFolder)$(ClientApplicationManifest)" DestinationFolder="$(ClientClickOnceFolder)ClickOnceApplicationFile\" />
     <Exec Command="$(RepoRoot)tools\AzCopy.exe $(ClientClickOnceFolder) $(ClientBlobTargetUrl) /destkey:$(BlobTargetKey)== /S /V /Y" />
-    <Exec Command="$(RepoRoot)tools\AzCopy.exe $(ClientClickOnceFolder)ClickOnceApplicationFile\ $(ClientBlobTargetUrl) /destkey:$(BlobTargetKey)== /S /V /Y" />
+    <Exec Command="$(RepoRoot)tools\AzCopy.exe $(ClientClickOnceFolder)ClickOnceApplicationFile\ $(ClientBlobTargetUrl) /destkey:$(BlobTargetKey) /S /V /Y" />
     
     <Move SourceFiles="$(ServerClickOnceFolder)$(ServerApplicationManifest)" DestinationFolder="$(ServerClickOnceFolder)ClickOnceApplicationFile\" />
     <Exec Command="$(RepoRoot)tools\AzCopy.exe $(ServerClickOnceFolder) $(ServerBlobTargetUrl) /destkey:$(BlobTargetKey)== /S /V /Y" />
-    <Exec Command="$(RepoRoot)tools\AzCopy.exe $(ServerClickOnceFolder)ClickOnceApplicationFile\ $(ServerBlobTargetUrl) /destkey:$(BlobTargetKey)== /S /V /Y" />
+    <Exec Command="$(RepoRoot)tools\AzCopy.exe $(ServerClickOnceFolder)ClickOnceApplicationFile\ $(ServerBlobTargetUrl) /destkey:$(BlobTargetKey) /S /V /Y" />
   </Target>
 </Project>
